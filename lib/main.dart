@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 ///  Bu seride öğreneceklerimiz
 ///  Seviye: Başlangıç üstü - Orta
 /*
-1.  Flutter projesi oluşturma
-2.  Otomatik uygulama ikonu oluşturma android/iOS
-3.  Native splash screen düzenleme
-4.  Temel native-flutter ilişkisi
+/1.  Flutter projesi oluşturma
+/2.  Otomatik uygulama ikonu oluşturma android/iOS
+/3.  Native splash screen düzenleme
+/4.  Temel native-flutter ilişkisi
 5.  Hive veritabanı CRUD işlemleri
 6.  Hive ile state-management (deneysel)
 7.  WakeLock ile telefon ekranını uyanık tutma

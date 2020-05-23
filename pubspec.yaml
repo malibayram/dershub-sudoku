@@ -38,6 +38,10 @@ flutter_icons:
   android: "ic_launcher"
   ios: true
   image_path: "assets/icon/sudoku.png"
+
+### run to create launcher icons
+# flutter pub run flutter_launcher_icons:main
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
