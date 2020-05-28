@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:sudoku/sudoku_tahta.dart';
 
 import 'sudokular.dart';
 import 'dil.dart';
@@ -83,13 +85,14 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
   }
 
   void _adimKaydet() {
+    print(_sudokuKutu.get('sudokuRows').toString());
     Map historyItem = {
       'sudokuRows': _sudokuKutu.get('sudokuRows'),
       'xy': _sudokuKutu.get('xy'),
       'ipucu': _sudokuKutu.get('ipucu'),
     };
 
-    _sudokuHistory.add(historyItem);
+    _sudokuHistory.add(jsonEncode(historyItem));
 
     _sudokuKutu.put('sudokuHistory', _sudokuHistory);
   }
@@ -116,98 +119,14 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
             AspectRatio(
               aspectRatio: 1,
               child: ValueListenableBuilder<Box>(
-                  valueListenable: _sudokuKutu.listenable(keys: ['xy', 'sudokuRows']),
-                  builder: (context, box, widget) {
-                    String xy = box.get('xy');
-                    int xC = int.parse(xy.substring(0, 1)), yC = int.parse(xy.substring(1));
-                    List sudokuRows = box.get('sudokuRows');
+                valueListenable: _sudokuKutu.listenable(keys: ['xy', 'sudokuRows']),
+                builder: (context, box, widget) {
+                  String xy = box.get('xy');
+                  int xC = int.parse(xy.substring(0, 1)), yC = int.parse(xy.substring(1));
 
-                    return Container(
-                      color: Colors.amber,
-                      padding: EdgeInsets.all(2.0),
-                      margin: EdgeInsets.all(8.0),
-                      child: Column(
-                        children: <Widget>[
-                          for (int x = 0; x < 9; x++)
-                            Expanded(
-                              child: Column(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Row(
-                                      children: <Widget>[
-                                        for (int y = 0; y < 9; y++)
-                                          Expanded(
-                                            child: Row(
-                                              children: <Widget>[
-                                                Expanded(
-                                                  child: Container(
-                                                    margin: EdgeInsets.all(1.0),
-                                                    color: xC == x && yC == y
-                                                        ? Colors.green
-                                                        : Colors.blue.withOpacity(xC == x || yC == y ? 0.8 : 1.0),
-                                                    alignment: Alignment.center,
-                                                    child: "${sudokuRows[x][y]}".startsWith('e')
-                                                        ? Text(
-                                                            "${sudokuRows[x][y]}".substring(1),
-                                                            style:
-                                                                TextStyle(fontWeight: FontWeight.bold, fontSize: 22.0),
-                                                          )
-                                                        : InkWell(
-                                                            onTap: () {
-                                                              print("$x$y");
-                                                              _sudokuKutu.put('xy', "$x$y");
-                                                            },
-                                                            child: Center(
-                                                              child: "${sudokuRows[x][y]}".length > 8
-                                                                  ? Column(
-                                                                      children: <Widget>[
-                                                                        for (int i = 0; i < 9; i += 3)
-                                                                          Expanded(
-                                                                            child: Row(
-                                                                              children: <Widget>[
-                                                                                for (int j = 0; j < 3; j++)
-                                                                                  Expanded(
-                                                                                    child: Center(
-                                                                                      child: Text(
-                                                                                        "${sudokuRows[x][y]}"
-                                                                                                    .split('')[i + j] ==
-                                                                                                "0"
-                                                                                            ? ""
-                                                                                            : "${sudokuRows[x][y]}"
-                                                                                                .split('')[i + j],
-                                                                                        style:
-                                                                                            TextStyle(fontSize: 10.0),
-                                                                                      ),
-                                                                                    ),
-                                                                                  ),
-                                                                              ],
-                                                                            ),
-                                                                          )
-                                                                      ],
-                                                                    )
-                                                                  : Text(
-                                                                      sudokuRows[x][y] != "0" ? sudokuRows[x][y] : "",
-                                                                      style: TextStyle(fontSize: 20.0),
-                                                                    ),
-                                                            ),
-                                                          ),
-                                                  ),
-                                                ),
-                                                if (y == 2 || y == 5) SizedBox(width: 2),
-                                              ],
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (x == 2 || x == 5) SizedBox(height: 2),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
+                  return SudokuTahta(sudokuRows: box.get('sudokuRows'), xC: xC, yC: yC, tikla: (d) => box.put('xy', d));
+                },
+              ),
             ),
             SizedBox(height: 8.0),
             Expanded(
@@ -231,6 +150,8 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                         _sudoku[xC][yC] = "0";
                                         _sudokuKutu.put('sudokuRows', _sudoku);
                                         _adimKaydet();
+
+                                        print(_sudokuKutu.get('sudokuRows').toString());
                                       }
                                     },
                                     child: Column(
@@ -279,6 +200,8 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
 
                                               box.put('ipucu', box.get('ipucu') - 1);
                                               _adimKaydet();
+
+                                              print(_sudokuKutu.get('sudokuRows').toString());
                                             }
                                           }
                                         },
@@ -345,7 +268,8 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                     onTap: () {
                                       if (_sudokuHistory.length > 1) {
                                         _sudokuHistory.removeLast();
-                                        Map onceki = _sudokuHistory.last;
+                                        Map onceki = jsonDecode(_sudokuHistory.last);
+
                                         /* Map historyItem = {
                                           'sudokuRows': _sudokuKutu.get('sudokuRows'),
                                           'xy': _sudokuKutu.get('xy'),
@@ -353,7 +277,6 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                         }; */
 
                                         print(_sudokuKutu.get('sudokuRows'));
-                                        print(_sudokuHistory[_sudokuHistory.length - 2]['sudokuRows']);
 
                                         _sudokuKutu.put('sudokuRows', onceki['sudokuRows']);
                                         _sudokuKutu.put('xy', onceki['xy']);
@@ -401,25 +324,25 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                       child: InkWell(
                                         onTap: () {
                                           String xy = _sudokuKutu.get('xy');
+                                          List sudoku = List.from(_sudokuKutu.get('sudokuRows'));
                                           if (xy != "99") {
                                             int xC = int.parse(xy.substring(0, 1)), yC = int.parse(xy.substring(1));
                                             if (!_note)
-                                              _sudoku[xC][yC] = "${i + j}";
+                                              sudoku[xC][yC] = "${i + j}";
                                             else {
-                                              if ("${_sudoku[xC][yC]}".length < 8) _sudoku[xC][yC] = "000000000";
+                                              if ("${sudoku[xC][yC]}".length < 8) sudoku[xC][yC] = "000000000";
 
-                                              _sudoku[xC][yC] = "${_sudoku[xC][yC]}".replaceRange(
+                                              sudoku[xC][yC] = "${sudoku[xC][yC]}".replaceRange(
                                                 i + j - 1,
                                                 i + j,
-                                                "${_sudoku[xC][yC]}".substring(i + j - 1, i + j) == "${i + j}"
+                                                "${sudoku[xC][yC]}".substring(i + j - 1, i + j) == "${i + j}"
                                                     ? "0"
                                                     : "${i + j}",
                                               );
                                             }
 
-                                            _sudokuKutu.put('sudokuRows', _sudoku);
+                                            _sudokuKutu.put('sudokuRows', sudoku);
                                             _adimKaydet();
-                                            print("${i + j}");
                                           }
                                         },
                                         child: Container(
