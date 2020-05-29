@@ -1,8 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:wakelock/wakelock.dart';
 
 import 'sudokular.dart';
 import 'dil.dart';
@@ -41,6 +45,7 @@ class SudokuSayfasi extends StatefulWidget {
 class _SudokuSayfasiState extends State<SudokuSayfasi> {
   final List ornekSudoku = List.generate(9, (i) => List.generate(9, (j) => j + 1));
   final Box _sudokuKutu = Hive.box('sudoku');
+  Timer _sayac;
 
   List _sudoku = [], _sudokuHistory = [];
 
@@ -77,27 +82,79 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
     _sudokuKutu.put('sudokuRows', _sudoku);
     _sudokuKutu.put('xy', "99");
     _sudokuKutu.put('ipucu', 3);
+    _sudokuKutu.put('sure', 0);
 
     print(_sudokuString);
     print(gorulecekSayisi);
   }
 
   void _adimKaydet() {
-    Map historyItem = {
-      'sudokuRows': _sudokuKutu.get('sudokuRows'),
-      'xy': _sudokuKutu.get('xy'),
-      'ipucu': _sudokuKutu.get('ipucu'),
-    };
+    String sudoSonDurum = _sudokuKutu.get('sudokuRows').toString();
+    if (sudoSonDurum.contains("0")) {
+      Map historyItem = {
+        'sudokuRows': _sudokuKutu.get('sudokuRows'),
+        'xy': _sudokuKutu.get('xy'),
+        'ipucu': _sudokuKutu.get('ipucu'),
+      };
 
-    _sudokuHistory.add(historyItem);
+      _sudokuHistory.add(jsonEncode(historyItem));
 
-    _sudokuKutu.put('sudokuHistory', _sudokuHistory);
+      _sudokuKutu.put('sudokuHistory', _sudokuHistory);
+    } else {
+      _sudokuString = _sudokuKutu.get('sudokuString');
+      print("Sudoku ilk durum: $_sudokuString");
+      String kontrol = sudoSonDurum.replaceAll(RegExp(r'[e, \][]'), '');
+      String mesaj = "Sudokunuzda yanlışlar var. Dikkatli bir şekilde tekrar inceleyin.";
+
+      if (kontrol == _sudokuString) {
+        mesaj = "Tebrikler sudokuyu başarıyla bitirdiniz.";
+        Box tamamlananKutusu = Hive.box('tamamlanan_sudokular');
+        Map tamamlananSudoku = {
+          'tarih': DateTime.now(),
+          'cozulmus': _sudokuKutu.get('sudokuRows'),
+          'sure': _sudokuKutu.get('sure'),
+          'sudokuHistory': _sudokuKutu.get('sudokuHistory'),
+        };
+        tamamlananKutusu.add(tamamlananSudoku);
+        _sudokuKutu.put('sudokuRows', null);
+
+        Navigator.pop(context);
+      }
+
+      Fluttertoast.showToast(
+        msg: mesaj,
+        toastLength: Toast.LENGTH_LONG,
+        timeInSecForIosWeb: 3,
+      );
+
+      print("Sudoku son durum: $kontrol");
+    }
   }
 
   @override
   void initState() {
-    _sudokuOlustur();
     super.initState();
+    // The following line will enable the Android and iOS wakelock.
+    Wakelock.enable();
+
+    if (_sudokuKutu.get('sudokuRows') == null)
+      _sudokuOlustur();
+    else
+      _sudoku = _sudokuKutu.get('sudokuRows');
+
+    _sayac = Timer.periodic(Duration(seconds: 1), (timer) {
+      int sure = _sudokuKutu.get('sure');
+      _sudokuKutu.put('sure', ++sure);
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_sayac != null && _sayac.isActive) _sayac.cancel();
+
+    // The next line disables the wakelock again.
+    Wakelock.disable();
+    super.dispose();
   }
 
   @override
@@ -105,7 +162,20 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
     return Scaffold(
       appBar: AppBar(
         title: Text(dil['sudoku_title']),
-        actions: <Widget>[IconButton(icon: Icon(Icons.refresh), onPressed: _sudokuOlustur)],
+        actions: <Widget>[
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: ValueListenableBuilder<Box>(
+                valueListenable: _sudokuKutu.listenable(keys: ['sure']),
+                builder: (context, box, _) {
+                  String sure = Duration(seconds: box.get('sure')).toString();
+                  return Text(sure.split('.').first);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
@@ -345,15 +415,12 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                     onTap: () {
                                       if (_sudokuHistory.length > 1) {
                                         _sudokuHistory.removeLast();
-                                        Map onceki = _sudokuHistory.last;
+                                        Map onceki = jsonDecode(_sudokuHistory.last);
                                         /* Map historyItem = {
                                           'sudokuRows': _sudokuKutu.get('sudokuRows'),
                                           'xy': _sudokuKutu.get('xy'),
 ·                                          'ipucu': _sudokuKutu.get('ipucu'),
                                         }; */
-
-                                        print(_sudokuKutu.get('sudokuRows'));
-                                        print(_sudokuHistory[_sudokuHistory.length - 2]['sudokuRows']);
 
                                         _sudokuKutu.put('sudokuRows', onceki['sudokuRows']);
                                         _sudokuKutu.put('xy', onceki['xy']);
@@ -374,6 +441,12 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                         Text(
                                           "Geri Al",
                                           style: TextStyle(color: Colors.black),
+                                        ),
+                                        ValueListenableBuilder<Box>(
+                                          valueListenable: _sudokuKutu.listenable(keys: ['sudokuHistory']),
+                                          builder: (context, box, _) {
+                                            return Text("${box.get('sudokuHistory', defaultValue: []).length}");
+                                          },
                                         ),
                                       ],
                                     ),
