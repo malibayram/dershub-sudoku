@@ -235,6 +235,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.0+2"
+  hive_listener:
+    dependency: "direct main"
+    description:
+      name: hive_listener
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   html:
     dependency: transitive
     description:

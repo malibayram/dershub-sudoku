@@ -18,6 +18,18 @@ import 'giris_sayfasi.dart';
 9.  Detaylı liste işlemleri
 10. Uygulama yayınlama işlemleri
 11. Github temel işlemler
+
+// İpucu butonuna yeni ipuçları kazanması için
+// Google admob reklam izleme
+// Uygulama içi satın alma
+// Uygulamaya farklı dil destekleri ekleme
+// Uygulama ismi-ikonu dile göre değiştirelim
+// Market tarafında aynı şekilde
+
+/// Fikirsel tartışılacak konular
+/// firebase google - apple ile giriş ekleyelim
+/// oynadığı sudokuları firestore kaydedip herkese açık hale getirme
+
 */
 
 /// Akış

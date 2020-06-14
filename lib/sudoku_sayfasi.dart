@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_listener/hive_listener.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'sudokular.dart';
@@ -166,9 +167,10 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
           Center(
             child: Padding(
               padding: const EdgeInsets.only(right: 8.0),
-              child: ValueListenableBuilder<Box>(
-                valueListenable: _sudokuKutu.listenable(keys: ['sure']),
-                builder: (context, box, _) {
+              child: HiveListener(
+                box: _sudokuKutu,
+                keys: ['sure'],
+                builder: (box) {
                   String sure = Duration(seconds: box.get('sure')).toString();
                   return Text(sure.split('.').first);
                 },
