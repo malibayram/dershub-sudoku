@@ -42,27 +42,24 @@ import 'sudoku/finished_puzzle.dart';
 
 */
 
-/// Akış
+///  In-App Purchase
 /*
-1.  Canlı Kodlama 40 dk - 1 saat
-2.  Canlı yayına konuk alma (varsa)
-3.  Konuk ile birlikte soru cevaplama
-4.  İngilizce recap
-*/
+Prerequisites:
 
-///  What will we learn in this series
-///  Level: Upper Beginner - Medium
-/*
-1.  Create flutter project
-2.  Auto generate launch icon for android/iOS
-3.  Native splash screen editing
-4.  Basic information about native-flutter relation
-5.  Hive database CRUD operations
-6.  State-management via Hive (experimental)
-7.  Keep screen awake via WakeLock
-8.  Using GoogleFont
-9.  List methods
-10. Publishing app to stores
+AndroidManifest must include "com.android.vending.BILLING" permission.
+APK is built in release mode.
+APK is signed with the release certificate(s).
+APK is uploaded to alpha/beta distribution channel (previously - as a draft) 
+to the developer console at least once. (takes some time ~2h-24h).
+IAB products are published and their status set to active.
+Test account(s) is added in developer console.
+Testing requirements:
+
+Test APK has the same versionCode as the one uploaded to developer console.
+Test APK is signed with the same certificate(s) as the one uploaded to dev.console.
+Test account (not developer) - is the main account on the device.
+Test account is opted-in as a tester and it's linked to a valid payment method.  
+
 */
 
 /// Flow
@@ -81,6 +78,7 @@ void main() async {
   // Box => sql veritabanlarındaki tablolara denk gelir
   await Hive.openBox('ayarlar');
   Hive.registerAdapter(FinishedPuzzleAdapter());
+
   runApp(MyApp());
 }
 

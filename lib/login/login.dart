@@ -136,6 +136,12 @@ class _LoginState extends State<Login> {
   }
 
   @override
+  void dispose() {
+    _gittim = true;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return HiveListener(
       box: Hive.box('ayarlar'),

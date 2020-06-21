@@ -312,10 +312,10 @@ class _KategoriSecState extends State<KategoriSec> {
   @override
   void dispose() {
     _boxSudoku.compact();
-    if (_boxSudoku.isOpen) _boxSudoku.close();
+    if (Hive.isBoxOpen('sudoku')) _boxSudoku.close();
 
     _boxfinishedPuzzles.compact();
-    if (_boxfinishedPuzzles.isOpen) _boxfinishedPuzzles.close();
+    if (Hive.isBoxOpen('finishedPuzzles')) _boxfinishedPuzzles.close();
     _subscription.cancel();
 
     super.dispose();
@@ -345,12 +345,20 @@ class _KategoriSecState extends State<KategoriSec> {
               ),
               title: Text(Fnks.uye.displayName ?? "Anonim"),
               actions: <Widget>[
-                if (ss.data.get('resume', defaultValue: false))
-                  IconButton(
-                    icon: Icon(Icons.play_circle_outline),
-                    tooltip: "Devam",
-                    onPressed: _newPuzzle,
-                  ),
+                HiveListener(
+                  box: ss.data,
+                  keys: ['resume'],
+                  builder: (box) {
+                    if (ss.data.get('resume', defaultValue: false))
+                      return IconButton(
+                        icon: Icon(Icons.play_circle_outline),
+                        tooltip: "Devam",
+                        onPressed: _newPuzzle,
+                      );
+                    else
+                      return SizedBox();
+                  },
+                ),
                 PopupMenuButton<String>(
                   onSelected: (String seviye) {
                     if (seviye == 'cikisYap')
