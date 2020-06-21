@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "149224146918",
+    "firebase_url": "https://dershubsudoku.firebaseio.com",
+    "project_id": "dershubsudoku",
+    "storage_bucket": "dershubsudoku.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149224146918:android:aa7c833d01334623e87827",
+        "android_client_info": {
+          "package_name": "dershub.sudoku"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149224146918-8gr59ecbmt4c38tbjuo05347i3c2a4qq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dershub.sudoku",
+            "certificate_hash": "43f8252dd2383d5fb909e31cf53facf1b344191d"
+          }
+        },
+        {
+          "client_id": "149224146918-53ta7649r7t1dd32u6ottskv8m61dh4c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dershub.sudoku",
+            "certificate_hash": "dc1b5ac0a106634b17342a41f7482280df114a12"
+          }
+        },
+        {
+          "client_id": "149224146918-l90edpmm7mdqhvnkgrv0cslnsaekfrrf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrkb3NQx3uMwrxcpyqsqMbqPooeJUZk-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149224146918-l90edpmm7mdqhvnkgrv0cslnsaekfrrf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "149224146918-pi09dkeo8459jo31eclknvid2a31479d.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "dershub.sudoku",
+                "app_store_id": "1518474342"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
