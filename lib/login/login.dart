@@ -16,10 +16,18 @@ import 'package:sudoku/utils/renkler.dart';
 
 Future kullaniciKontrol(FirebaseUser user) async {
   Fnks.uye = Uye(uid: user.uid, email: user.email, displayName: user.displayName, photoUrl: user.photoUrl);
-  DocumentSnapshot documentSnapshot = await Firestore.instance.collection('uyeler').document(user.uid).get();
+
+  CollectionReference cr = Firestore.instance.collection('uyeler');
+
+  Query ornekSorgu = cr.where('jetonlar.sudoku_ipucu', isEqualTo: 0).limit(10).orderBy('uid');
+
+  DocumentReference dr = cr.document(user.uid);
+
+  DocumentSnapshot documentSnapshot = await dr.get();
+//  QuerySnapshot querySnapshot = await ornekSorgu.getDocuments();
 
   if (!documentSnapshot.exists) {
-    await Firestore.instance.collection('uyeler').document(user.uid).setData(Fnks.uye.toMap());
+    await dr.setData(Fnks.uye.toMap());
   }
 
   Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
@@ -66,6 +74,7 @@ class _LoginState extends State<Login> {
             print(result.credential.user); //All the required credentials
             final AppleIdCredential appleIdCredential = result.credential;
             OAuthProvider oAuthProvider = new OAuthProvider(providerId: "apple.com");
+
             final AuthCredential credential = oAuthProvider.getCredential(
               idToken: String.fromCharCodes(appleIdCredential.identityToken),
               accessToken: String.fromCharCodes(appleIdCredential.authorizationCode),
@@ -105,6 +114,7 @@ class _LoginState extends State<Login> {
 
     try {
       final GoogleSignInAccount googleUser = await _googleSignIn.signIn();
+
       if (googleUser != null) {
         final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 

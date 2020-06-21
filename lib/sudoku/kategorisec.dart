@@ -33,7 +33,7 @@ class _KategoriSecState extends State<KategoriSec> {
 
   Future _reklamIzle() async {
     MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-      keywords: <String>['flutterio', 'beautiful apps'],
+      keywords: <String>['bilgisayar', 'oyun'],
       contentUrl: 'https://flutter.io',
       childDirected: false,
       testDevices: <String>[],
@@ -217,7 +217,8 @@ class _KategoriSecState extends State<KategoriSec> {
             "hata_mesajı": "${p.error.message}",
             "hata_kaynağı": "${p.error.source.index}",
             "ek": "${p.error.details}",
-          });
+          }).then((dr) => print(dr.documentID));
+
           showDialog(
             context: context,
             builder: (_) {
@@ -301,7 +302,9 @@ class _KategoriSecState extends State<KategoriSec> {
   @override
   void initState() {
     InAppPurchaseConnection.enablePendingPurchases();
+
     final Stream<List<PurchaseDetails>> purchaseUpdates = InAppPurchaseConnection.instance.purchaseUpdatedStream;
+
     _subscription = purchaseUpdates.listen((purchases) {
       _handlePurchaseUpdates(purchases);
     });
@@ -570,10 +573,10 @@ class _KategoriSecState extends State<KategoriSec> {
                       ),
                       HiveListener(
                         box: _boxSudoku,
-                        keys: ['izleme', 'ipucu'],
+                        keys: ['izleme'],
                         builder: (box) {
                           int izleme = box.get('izleme', defaultValue: 3);
-                          int ipucu = box.get('ipucu', defaultValue: 0);
+                          int ipucu = box.get('ipucu', defaultValue: 3);
                           if (Fnks.uye.jetonlar['sudoku_izleme'] != izleme) {
                             Fnks.uye.jetonlar['sudoku_izleme'] = izleme;
                             Fnks.uye.jetonlar['sudoku_ipucu'] = ipucu;
@@ -582,9 +585,11 @@ class _KategoriSecState extends State<KategoriSec> {
 
                             Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
 
-                            Firestore.instance
-                                .collection('uyeler')
-                                .document(Fnks.uye.uid)
+                            Firestore.instance.collection('uyeler').document(Fnks.uye.uid)
+                                //silme işlemi
+                                /* .delete(); */
+
+                                //guncelleme işlemi
                                 .updateData({'jetonlar': Fnks.uye.jetonlar});
                           }
                           return InkWell(

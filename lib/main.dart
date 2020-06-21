@@ -1,3 +1,4 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +15,7 @@ import 'package:sudoku/utils/renkler.dart';
 
 import 'sudoku/finished_puzzle.dart';
 
-///  Bu seride öğreneceklerimiz
+///  Bu seride öğreneceklerimiz?Ø
 ///  Seviye: Başlangıç üstü - Orta
 /*
 /1.  Flutter projesi oluşturma
@@ -40,9 +41,22 @@ import 'sudoku/finished_puzzle.dart';
 /// firebase google - apple ile giriş ekleyelim
 /// oynadığı sudokuları firestore kaydedip herkese açık hale getirme
 
+
+21 Haziran
+
+FirebaseAuth
+Google Sign In
+Apple Sign In
+
+Firestore
+
+Google Admob Rewarded Ad
+In-App Purchase
+
+CRUD
 */
 
-///  In-App Purchase
+/// In-App Purchase
 /*
 Prerequisites:
 
@@ -62,22 +76,14 @@ Test account is opted-in as a tester and it's linked to a valid payment method.
 
 */
 
-/// Flow
-/*
-1.  Live coding (Turkish language) 40 mins - 1 hour
-3.  Answer Questions if there are questions (with guest if there is a guest)
-4.  Recap of live coding in English
-
-
-5.  Answer Questions (English)
-*/
-
 void main() async {
   await Hive.initFlutter('dershub-sudoku');
 
   // Box => sql veritabanlarındaki tablolara denk gelir
   await Hive.openBox('ayarlar');
   Hive.registerAdapter(FinishedPuzzleAdapter());
+
+  FirebaseAdMob.instance.initialize(appId: "ca-app-pub-6288838616447002~5756160571");
 
   runApp(MyApp());
 }
