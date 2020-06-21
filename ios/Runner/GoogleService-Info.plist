@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>149224146918-pi09dkeo8459jo31eclknvid2a31479d.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.149224146918-pi09dkeo8459jo31eclknvid2a31479d</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>149224146918-53ta7649r7t1dd32u6ottskv8m61dh4c.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAF8YmfaWVuBCShd7iHSvc1XKctnmRhkP4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>149224146918</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>dershub.sudoku</string>
+	<key>PROJECT_ID</key>
+	<string>dershubsudoku</string>
+	<key>STORAGE_BUCKET</key>
+	<string>dershubsudoku.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:149224146918:ios:1d5775775d7eb991e87827</string>
+	<key>DATABASE_URL</key>
+	<string>https://dershubsudoku.firebaseio.com</string>
+</dict>
+</plist>
