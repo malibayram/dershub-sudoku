@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +85,9 @@ void main() async {
   await Hive.openBox('ayarlar');
   Hive.registerAdapter(FinishedPuzzleAdapter());
 
-  FirebaseAdMob.instance.initialize(appId: "ca-app-pub-6288838616447002~5756160571");
+  FirebaseAdMob.instance.initialize(
+    appId: Platform.isIOS ? "ca-app-pub-6288838616447002~5756160571" : "ca-app-pub-6288838616447002~3076605462",
+  );
 
   runApp(MyApp());
 }

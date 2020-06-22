@@ -1,7 +1,7 @@
 name: sudoku
 description: A new Flutter project.
 
-version: 0.1.4+5
+version: 0.1.5+6
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

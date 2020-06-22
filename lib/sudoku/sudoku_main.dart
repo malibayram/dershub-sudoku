@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_admob/firebase_admob.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -51,16 +51,19 @@ class _SudokuMainState extends State<SudokuMain> {
 
   Future _reklamIzle() async {
     MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-      keywords: <String>['flutterio', 'beautiful apps'],
-      contentUrl: 'https://flutter.io',
+      keywords: <String>['bilgisayar', 'oyun', 'bulmaca'],
+      contentUrl: 'https://dershub.com/oyun/sudoku',
       childDirected: false,
       testDevices: <String>[],
     );
 
-    String adUnit = "ca-app-pub-6288838616447002/9733176442";
+    // izleme => ca-app-pub-6288838616447002/6577912952
+    String adiOSUnit = "ca-app-pub-6288838616447002/6991304900";
+    String adAndroidUnit = "ca-app-pub-6288838616447002/7073165572";
     bool tryAgain = false;
 
-    await RewardedVideoAd.instance.load(adUnitId: adUnit, targetingInfo: targetingInfo);
+    await RewardedVideoAd.instance
+        .load(adUnitId: Platform.isIOS ? adiOSUnit : adAndroidUnit, targetingInfo: targetingInfo);
 
     try {
       await RewardedVideoAd.instance.show();
@@ -253,20 +256,18 @@ class _SudokuMainState extends State<SudokuMain> {
 
     finishedPuzzles.compact();
 
-    FirebaseAuth.instance.currentUser().then((value) => (user) {
-          Firestore.instance.collection('finishedPuzzles').add({
-            'oynayan': user.uid,
-            'sudokustring': _sudokuString,
-            'sudokuHistory': _sudokuHistory,
-            'unsolved': jsonEncode(jsonDecode(_sudokuHistory.first)['sudoku']),
-            'solved': jsonEncode(_sudoku),
-            'date': Timestamp.now(),
-            'serverdate': FieldValue.serverTimestamp(),
-            'time': _kutu.get('sure'),
-            'puan': puan,
-            'level': _kutu.get('level'),
-          });
-        });
+    Firestore.instance.collection('finishedPuzzles').add({
+      'oynayan': Fnks.uye.uid,
+      'sudokustring': _sudokuString,
+      'sudokuHistory': _sudokuHistory,
+      'unsolved': jsonEncode(jsonDecode(_sudokuHistory.first)['sudoku']),
+      'solved': jsonEncode(_sudoku),
+      'date': Timestamp.now(),
+      'serverdate': FieldValue.serverTimestamp(),
+      'time': _kutu.get('sure'),
+      'puan': puan,
+      'level': _kutu.get('level'),
+    });
 
     Navigator.pushReplacement(
       context,
@@ -280,6 +281,17 @@ class _SudokuMainState extends State<SudokuMain> {
         case PurchaseStatus.purchased:
           _kutu.put('izleme', _kutu.get('izleme', defaultValue: 0) + 200);
           _kutu.put('ipucu', _kutu.get('ipucu', defaultValue: 0) + 200);
+          Firestore.instance.collection('oyunlar').document('sudoku').collection('succedPurchases').add({
+            "kullanici_id": Fnks.uye.uid,
+            "islem_zamani_server": FieldValue.serverTimestamp(),
+            "islem_zamani_phone": Timestamp.now(),
+            "transactionDate": "${p.transactionDate}",
+            "verificationData": "${p.verificationData}",
+            "status": "${p.status}",
+            "purchaseID": "${p.purchaseID}",
+            "p": "${p.toString()}",
+            "billingClientPurchase": "${p.billingClientPurchase.toString()}",
+          }).then((dr) => print(dr.documentID));
           Fluttertoast.showToast(
             msg:
                 "Teşekkür ederiz. 200 izleme hakkı ve 200 ipucu aldınız. Haklar profinize tanımlandı istediğiniz zaman kullanabilirsiniz.",
@@ -313,6 +325,18 @@ class _SudokuMainState extends State<SudokuMain> {
             "hata_kaynağı": "${p.error.source.index}",
             "ek": "${p.error.details}",
           });
+
+          if (p.error.message == "BillingResponse.itemAlreadyOwned") {
+            _kutu.put('izleme', _kutu.get('izleme', defaultValue: 0) + 200);
+            _kutu.put('ipucu', _kutu.get('ipucu', defaultValue: 0) + 200);
+            Fluttertoast.showToast(
+              msg:
+                  "Teşekkür ederiz. 200 izleme hakkı ve 200 ipucu aldınız. Haklar profinize tanımlandı istediğiniz zaman kullanabilirsiniz.",
+              toastLength: Toast.LENGTH_LONG,
+              timeInSecForIosWeb: 3,
+            );
+          }
+
           showDialog(
             context: context,
             builder: (_) {

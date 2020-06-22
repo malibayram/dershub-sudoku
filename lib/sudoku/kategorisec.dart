@@ -33,15 +33,15 @@ class _KategoriSecState extends State<KategoriSec> {
 
   Future _reklamIzle() async {
     MobileAdTargetingInfo targetingInfo = MobileAdTargetingInfo(
-      keywords: <String>['bilgisayar', 'oyun'],
-      contentUrl: 'https://flutter.io',
+      keywords: <String>['bilgisayar', 'oyun', 'bulmaca'],
+      contentUrl: 'https://dershub.com/oyun/sudoku',
       childDirected: false,
       testDevices: <String>[],
     );
 
     // izleme => ca-app-pub-6288838616447002/6577912952
     String adiOSUnit = "ca-app-pub-6288838616447002/6991304900";
-    String adAndroidUnit = "ca-app-pub-6288838616447002/6991304900";
+    String adAndroidUnit = "ca-app-pub-6288838616447002/7073165572";
     bool tryAgain = false;
 
     await RewardedVideoAd.instance
@@ -185,6 +185,17 @@ class _KategoriSecState extends State<KategoriSec> {
         case PurchaseStatus.purchased:
           _boxSudoku.put('izleme', _boxSudoku.get('izleme', defaultValue: 0) + 200);
           _boxSudoku.put('ipucu', _boxSudoku.get('ipucu', defaultValue: 0) + 200);
+          Firestore.instance.collection('oyunlar').document('sudoku').collection('succedPurchases').add({
+            "kullanici_id": Fnks.uye.uid,
+            "islem_zamani_server": FieldValue.serverTimestamp(),
+            "islem_zamani_phone": Timestamp.now(),
+            "transactionDate": "${p.transactionDate}",
+            "verificationData": "${p.verificationData}",
+            "status": "${p.status}",
+            "purchaseID": "${p.purchaseID}",
+            "p": "${p.toString()}",
+            "billingClientPurchase": "${p.billingClientPurchase.toString()}",
+          }).then((dr) => print(dr.documentID));
           Fluttertoast.showToast(
             msg:
                 "Teşekkür ederiz. 200 izleme hakkı ve 200 ipucu aldınız. Haklar profinize tanımlandı istediğiniz zaman kullanabilirsiniz.",
@@ -218,6 +229,17 @@ class _KategoriSecState extends State<KategoriSec> {
             "hata_kaynağı": "${p.error.source.index}",
             "ek": "${p.error.details}",
           }).then((dr) => print(dr.documentID));
+
+          if (p.error.message == "BillingResponse.itemAlreadyOwned") {
+            _boxSudoku.put('izleme', _boxSudoku.get('izleme', defaultValue: 0) + 200);
+            _boxSudoku.put('ipucu', _boxSudoku.get('ipucu', defaultValue: 0) + 200);
+            Fluttertoast.showToast(
+              msg:
+                  "Teşekkür ederiz. 200 izleme hakkı ve 200 ipucu aldınız. Haklar profinize tanımlandı istediğiniz zaman kullanabilirsiniz.",
+              toastLength: Toast.LENGTH_LONG,
+              timeInSecForIosWeb: 3,
+            );
+          }
 
           showDialog(
             context: context,
@@ -283,6 +305,7 @@ class _KategoriSecState extends State<KategoriSec> {
         } */
         try {
           bool sonuc = await InAppPurchaseConnection.instance.buyConsumable(purchaseParam: purchaseParam);
+
           print("buyConsumable: $sonuc");
         } on PlatformException catch (e) {
           String error = "PlatformException code: ${e.code}, message: ${e.message}, details: ${e.details}";
@@ -348,60 +371,62 @@ class _KategoriSecState extends State<KategoriSec> {
               ),
               title: Text(Fnks.uye.displayName ?? "Anonim"),
               actions: <Widget>[
-                HiveListener(
-                  box: ss.data,
-                  keys: ['resume'],
-                  builder: (box) {
-                    if (ss.data.get('resume', defaultValue: false))
-                      return IconButton(
-                        icon: Icon(Icons.play_circle_outline),
-                        tooltip: "Devam",
-                        onPressed: _newPuzzle,
-                      );
-                    else
-                      return SizedBox();
-                  },
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (String seviye) {
-                    if (seviye == 'cikisYap')
-                      signOut();
-                    else if (_boxSudoku.get('resume', defaultValue: false))
-                      _showResumeAlert(seviye);
-                    else {
-                      _boxSudoku.put('resume', false);
-                      _boxSudoku.put('level', seviye);
-                      _newPuzzle();
-                    }
-                  },
-                  tooltip: "Seviye Seçimi",
-                  icon: Icon(Icons.add),
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem<String>(
-                      value: 'Seviye Seçimi',
-                      enabled: false,
-                      child: Text(
-                        "Seviye Seçimi",
-                        style: TextStyle(
-                          color: Renk.siyah,
-                          fontWeight: FontWeight.bold,
+                if (ss.data.length > 0)
+                  HiveListener(
+                    box: ss.data,
+                    keys: ['resume'],
+                    builder: (box) {
+                      if (ss.data.get('resume', defaultValue: false))
+                        return IconButton(
+                          icon: Icon(Icons.play_circle_outline),
+                          tooltip: "Devam",
+                          onPressed: _newPuzzle,
+                        );
+                      else
+                        return SizedBox();
+                    },
+                  ),
+                if (ss.data.length > 0)
+                  PopupMenuButton<String>(
+                    onSelected: (String seviye) {
+                      if (seviye == 'cikisYap')
+                        signOut();
+                      else if (ss.data.get('resume', defaultValue: false))
+                        _showResumeAlert(seviye);
+                      else {
+                        ss.data.put('resume', false);
+                        ss.data.put('level', seviye);
+                        _newPuzzle();
+                      }
+                    },
+                    tooltip: "Seviye Seçimi",
+                    icon: Icon(Icons.add),
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem<String>(
+                        value: 'Seviye Seçimi',
+                        enabled: false,
+                        child: Text(
+                          "Seviye Seçimi",
+                          style: TextStyle(
+                            color: Renk.siyah,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    PopupMenuDivider(),
-                    for (String level in _levels)
+                      PopupMenuDivider(),
+                      for (String level in _levels)
+                        PopupMenuItem<String>(
+                          value: level,
+                          child: Text(level),
+                        ),
+                      PopupMenuDivider(),
                       PopupMenuItem<String>(
-                        value: level,
-                        child: Text(level),
+                        value: 'cikisYap',
+                        textStyle: TextStyle(color: Renk.gKirmizi),
+                        child: Text("Çıkış Yap"),
                       ),
-                    PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                      value: 'cikisYap',
-                      textStyle: TextStyle(color: Renk.gKirmizi),
-                      child: Text("Çıkış Yap"),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
               ],
             ),
             backgroundColor: Renk.forumRenkleri[12],
@@ -529,12 +554,12 @@ class _KategoriSecState extends State<KategoriSec> {
                                             ),
                                             trailing: IconButton(
                                               onPressed: () {
-                                                int izleme = _boxSudoku.get('izleme', defaultValue: 3);
+                                                int izleme = ss.data.get('izleme', defaultValue: 3);
                                                 if (izleme > 0)
                                                   Navigator.push(
                                                     context,
                                                     MaterialPageRoute(builder: (_) {
-                                                      _boxSudoku.put('izleme', izleme - 1);
+                                                      ss.data.put('izleme', izleme - 1);
                                                       return SudokuReplay(fp: fp);
                                                     }),
                                                   );
@@ -556,56 +581,57 @@ class _KategoriSecState extends State<KategoriSec> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      Text(
-                        "Tekrar İzleme Hakkı: ",
-                        style: GoogleFonts.concertOne(
-                          textStyle: TextStyle(
-                            color: Renk.beyaz,
-                            fontSize: 18.0,
+                if (ss.data.length > 0)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(
+                          "Tekrar İzleme Hakkı: ",
+                          style: GoogleFonts.concertOne(
+                            textStyle: TextStyle(
+                              color: Renk.beyaz,
+                              fontSize: 18.0,
+                            ),
                           ),
                         ),
-                      ),
-                      HiveListener(
-                        box: _boxSudoku,
-                        keys: ['izleme'],
-                        builder: (box) {
-                          int izleme = box.get('izleme', defaultValue: 3);
-                          int ipucu = box.get('ipucu', defaultValue: 3);
-                          if (Fnks.uye.jetonlar['sudoku_izleme'] != izleme) {
-                            Fnks.uye.jetonlar['sudoku_izleme'] = izleme;
-                            Fnks.uye.jetonlar['sudoku_ipucu'] = ipucu;
+                        HiveListener(
+                          box: ss.data,
+                          keys: ['izleme'],
+                          builder: (box) {
+                            int izleme = box.get('izleme', defaultValue: 3);
+                            int ipucu = box.get('ipucu', defaultValue: 3);
+                            if (Fnks.uye.jetonlar['sudoku_izleme'] != izleme) {
+                              Fnks.uye.jetonlar['sudoku_izleme'] = izleme;
+                              Fnks.uye.jetonlar['sudoku_ipucu'] = ipucu;
 
-                            print(Fnks.uye.uid);
+                              print(Fnks.uye.uid);
 
-                            Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
+                              Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
 
-                            Firestore.instance.collection('uyeler').document(Fnks.uye.uid)
-                                //silme işlemi
-                                /* .delete(); */
+                              Firestore.instance.collection('uyeler').document(Fnks.uye.uid)
+                                  //silme işlemi
+                                  /* .delete(); */
 
-                                //guncelleme işlemi
-                                .updateData({'jetonlar': Fnks.uye.jetonlar});
-                          }
-                          return InkWell(
-                            onTap: izleme > 0 ? null : _izlemeHakkiBul,
-                            child: Text(
-                              izleme > 0 ? "$izleme" : "Bul",
-                              style: GoogleFonts.concertOne(
-                                textStyle: TextStyle(color: Renk.beyaz, fontSize: 24.0),
+                                  //guncelleme işlemi
+                                  .updateData({'jetonlar': Fnks.uye.jetonlar});
+                            }
+                            return InkWell(
+                              onTap: izleme > 0 ? null : _izlemeHakkiBul,
+                              child: Text(
+                                izleme > 0 ? "$izleme" : "Bul",
+                                style: GoogleFonts.concertOne(
+                                  textStyle: TextStyle(color: Renk.beyaz, fontSize: 24.0),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
           );

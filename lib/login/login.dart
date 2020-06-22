@@ -7,6 +7,7 @@ import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_listener/hive_listener.dart';
@@ -169,6 +170,22 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                SizedBox(height: 40.0),
+                Center(child: Image.asset('assets/icon/sudoku.png')),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16.0),
+                  alignment: Alignment.center,
+                  child: Text(
+                    "Sudoku Dershub",
+                    style: GoogleFonts.courgette(
+                      textStyle: TextStyle(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Renk.dkrem,
+                      ),
+                    ),
+                  ),
+                ),
                 Icon(Icons.account_circle, size: 100),
                 SizedBox(height: 20.0),
                 if (u['displayName'] != null) Center(child: Text(u['displayName'])),
