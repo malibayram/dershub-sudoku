@@ -19,7 +19,7 @@ Future kullaniciKontrol(FirebaseUser user) async {
 
   CollectionReference cr = Firestore.instance.collection('uyeler');
 
-  Query ornekSorgu = cr.where('jetonlar.sudoku_ipucu', isEqualTo: 0).limit(10).orderBy('uid');
+//  Query ornekSorgu = cr.where('jetonlar.sudoku_ipucu', isEqualTo: 0).limit(10).orderBy('uid');
 
   DocumentReference dr = cr.document(user.uid);
 
