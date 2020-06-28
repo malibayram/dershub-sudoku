@@ -108,37 +108,32 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: [Locale('en', 'US'), Locale('tr', 'TR')],
-      home: Container(
-        color: Renk.dhMavi.withOpacity(0.85),
-        child: SafeArea(
-          child: HiveListener(
-            box: Hive.box('ayarlar'),
-            keys: ['uye'],
-            builder: (box) {
-              Map m = box.get('uye', defaultValue: {});
-              if (m['email'] == null)
-                return FutureBuilder<FirebaseUser>(
-                  future: FirebaseAuth.instance.currentUser(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done)
-                      return Center(child: CircularProgressIndicator());
-                    else {
-                      if (snapshot.data == null)
-                        return Login();
-                      else {
-                        kullaniciKontrol(snapshot.data);
-                        return KategoriSec();
-                      }
-                    }
-                  },
-                );
-              else {
-                Fnks.uye = Uye.fromMap(m);
-                return KategoriSec();
-              }
-            },
-          ),
-        ),
+      home: HiveListener(
+        box: Hive.box('ayarlar'),
+        keys: ['uye'],
+        builder: (box) {
+          Map m = box.get('uye', defaultValue: {});
+          if (m['email'] == null)
+            return FutureBuilder<FirebaseUser>(
+              future: FirebaseAuth.instance.currentUser(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done)
+                  return Center(child: CircularProgressIndicator());
+                else {
+                  if (snapshot.data == null)
+                    return Login();
+                  else {
+                    kullaniciKontrol(snapshot.data);
+                    return KategoriSec();
+                  }
+                }
+              },
+            );
+          else {
+            Fnks.uye = Uye.fromMap(m);
+            return KategoriSec();
+          }
+        },
       ),
     );
   }

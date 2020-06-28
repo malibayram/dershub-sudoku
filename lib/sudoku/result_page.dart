@@ -12,7 +12,7 @@ class ResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Renk.gKirmizi.withOpacity(0.65),
+      color: Renk.dhMavi.withOpacity(0.65),
       child: SafeArea(
         child: Scaffold(
           appBar: AppBar(title: Text("Tebrikler")),

@@ -159,15 +159,16 @@ class _LoginState extends State<Login> {
       keys: ['uye'],
       builder: (box) {
         Map u = box.get('uye', defaultValue: {});
-        return Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/giris_back.png'),
-                fit: BoxFit.cover,
-              ),
+        return Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/giris_back.png'),
+              fit: BoxFit.cover,
             ),
-            child: Column(
+          ),
+          child: Scaffold(
+            backgroundColor: Color(0),
+            body: Column(
               children: <Widget>[
                 SizedBox(height: 40.0),
                 Center(child: Image.asset('assets/icon/sudoku.png')),

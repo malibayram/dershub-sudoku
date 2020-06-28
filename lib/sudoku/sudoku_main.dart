@@ -203,9 +203,9 @@ class _SudokuMainState extends State<SudokuMain> {
     _kutu.put('sudokuCols', _sudokuCols);
     _kutu.put('sudoku', _sudoku);
 
-                                      /// Buradaki karşılaştırma işlemi daha önce List nesnesi üzeinden yapılınca her zaman true oluyordu.
-                                      /// Çünkü iki listedeki elemanların aynı olması iki listeyi eşit yapmıyor.
-                                      /// Bu yüzden ikisini de string olarak karşılaştırmak gerekti.
+    /// Buradaki karşılaştırma işlemi daha önce List nesnesi üzeinden yapılınca her zaman true oluyordu.
+    /// Çünkü iki listedeki elemanların aynı olması iki listeyi eşit yapmıyor.
+    /// Bu yüzden ikisini de string olarak karşılaştırmak gerekti.
     if (_sudokuHistory.length == 0 || jsonEncode(jsonDecode(_sudokuHistory.last)['sudoku']) != jsonEncode(_sudoku)) {
       Map historyItem = {
         'sudoku': _sudoku,
@@ -431,7 +431,7 @@ class _SudokuMainState extends State<SudokuMain> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Renk.gKirmizi.withOpacity(0.65),
+      color: Renk.dhMavi.withOpacity(0.85),
       child: SafeArea(
         child: Scaffold(
           appBar: AppBar(

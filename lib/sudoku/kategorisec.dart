@@ -340,7 +340,7 @@ class _KategoriSecState extends State<KategoriSec> {
     _boxSudoku.compact();
 
     _boxfinishedPuzzles.compact();
-    if (Hive.isBoxOpen('finishedPuzzles')) _boxfinishedPuzzles.close();
+
     _subscription.cancel();
 
     super.dispose();
@@ -348,294 +348,300 @@ class _KategoriSecState extends State<KategoriSec> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<Box>(
-      future: Hive.openBox('sudoku'),
-      builder: (context, ss) {
-        if (ss.connectionState == ConnectionState.done && ss.hasData) {
-          _boxSudoku = ss.data;
-          return Scaffold(
-            appBar: AppBar(
-              leading: Container(
-                margin: const EdgeInsets.all(4.0),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(Fnks.uye.photoUrl ?? "https://image.flaticon.com/icons/png/512/16/16363.png"),
-                    fit: BoxFit.cover,
+    return Container(
+      color: Renk.dhMavi.withOpacity(0.85),
+      child: SafeArea(
+        child: FutureBuilder<Box>(
+          future: Hive.openBox('sudoku'),
+          builder: (context, ss) {
+            if (ss.connectionState == ConnectionState.done && ss.hasData) {
+              _boxSudoku = ss.data;
+              return Scaffold(
+                appBar: AppBar(
+                  leading: Container(
+                    margin: const EdgeInsets.all(4.0),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image:
+                            NetworkImage(Fnks.uye.photoUrl ?? "https://image.flaticon.com/icons/png/512/16/16363.png"),
+                        fit: BoxFit.cover,
+                      ),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(color: Colors.grey[350], offset: Offset(0, 0), blurRadius: 15),
+                      ],
+                    ),
                   ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(color: Colors.grey[350], offset: Offset(0, 0), blurRadius: 15),
+                  title: Text(Fnks.uye.displayName ?? "Anonim"),
+                  actions: <Widget>[
+                    if (ss.data.length > 0)
+                      HiveListener(
+                        box: ss.data,
+                        keys: ['resume'],
+                        builder: (box) {
+                          if (ss.data.get('resume', defaultValue: false))
+                            return IconButton(
+                              icon: Icon(Icons.play_circle_outline),
+                              tooltip: "Devam",
+                              onPressed: _newPuzzle,
+                            );
+                          else
+                            return SizedBox();
+                        },
+                      ),
+                    PopupMenuButton<String>(
+                      onSelected: (String seviye) {
+                        if (seviye == 'cikisYap')
+                          signOut();
+                        else if (ss.data.get('resume', defaultValue: false))
+                          _showResumeAlert(seviye);
+                        else {
+                          ss.data.put('resume', false);
+                          ss.data.put('level', seviye);
+                          _newPuzzle();
+                        }
+                      },
+                      tooltip: "Seviye Seçimi",
+                      icon: Icon(Icons.add),
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem<String>(
+                          value: 'Seviye Seçimi',
+                          enabled: false,
+                          child: Text(
+                            "Seviye Seçimi",
+                            style: TextStyle(
+                              color: Renk.siyah,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        PopupMenuDivider(),
+                        for (String level in _levels)
+                          PopupMenuItem<String>(
+                            value: level,
+                            child: Text(level),
+                          ),
+                        PopupMenuDivider(),
+                        PopupMenuItem<String>(
+                          value: 'cikisYap',
+                          textStyle: TextStyle(color: Renk.gKirmizi),
+                          child: Text("Çıkış Yap"),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-              title: Text(Fnks.uye.displayName ?? "Anonim"),
-              actions: <Widget>[
-                if (ss.data.length > 0)
-                  HiveListener(
-                    box: ss.data,
-                    keys: ['resume'],
-                    builder: (box) {
-                      if (ss.data.get('resume', defaultValue: false))
-                        return IconButton(
-                          icon: Icon(Icons.play_circle_outline),
-                          tooltip: "Devam",
-                          onPressed: _newPuzzle,
-                        );
-                      else
-                        return SizedBox();
-                    },
-                  ),
-                PopupMenuButton<String>(
-                  onSelected: (String seviye) {
-                    if (seviye == 'cikisYap')
-                      signOut();
-                    else if (ss.data.get('resume', defaultValue: false))
-                      _showResumeAlert(seviye);
-                    else {
-                      ss.data.put('resume', false);
-                      ss.data.put('level', seviye);
-                      _newPuzzle();
-                    }
-                  },
-                  tooltip: "Seviye Seçimi",
-                  icon: Icon(Icons.add),
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem<String>(
-                      value: 'Seviye Seçimi',
-                      enabled: false,
+                backgroundColor: Renk.forumRenkleri[12],
+                body: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16.0),
+                      alignment: Alignment.center,
                       child: Text(
-                        "Seviye Seçimi",
-                        style: TextStyle(
-                          color: Renk.siyah,
-                          fontWeight: FontWeight.bold,
+                        "Çözdükleriniz",
+                        style: GoogleFonts.courgette(
+                          textStyle: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Renk.dkrem,
+                          ),
                         ),
                       ),
                     ),
-                    PopupMenuDivider(),
-                    for (String level in _levels)
-                      PopupMenuItem<String>(
-                        value: level,
-                        child: Text(level),
-                      ),
-                    PopupMenuDivider(),
-                    PopupMenuItem<String>(
-                      value: 'cikisYap',
-                      textStyle: TextStyle(color: Renk.gKirmizi),
-                      child: Text("Çıkış Yap"),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            backgroundColor: Renk.forumRenkleri[12],
-            body: Column(
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Çözdükleriniz",
-                    style: GoogleFonts.courgette(
-                      textStyle: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Renk.dkrem,
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(18.0),
-                      child: FutureBuilder<Box<FinishedPuzzle>>(
-                        future: Hive.openBox<FinishedPuzzle>('finishedPuzzles'),
-                        builder: (context, sfp) {
-                          if (sfp.connectionState == ConnectionState.done && sfp.hasData) {
-                            _boxfinishedPuzzles = sfp.data;
-                            return HiveListener(
-                                box: _boxfinishedPuzzles,
-                                builder: (box) {
-                                  return ListView(
-                                    children: <Widget>[
-                                      if (box.isEmpty)
-                                        Container(
-                                          margin: EdgeInsets.all(16.0),
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "Henüz hiç sudoku çözmemişsiniz. Sağ üst köşedeki artı ikonundan yeni sudoku oluşturup hemen çözmeye başlayabilirsiniz",
-                                            style: GoogleFonts.cabin(
-                                              textStyle: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Renk.dkrem,
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(18.0),
+                          child: FutureBuilder<Box<FinishedPuzzle>>(
+                            future: Hive.openBox<FinishedPuzzle>('finishedPuzzles'),
+                            builder: (context, sfp) {
+                              if (sfp.connectionState == ConnectionState.done && sfp.hasData) {
+                                _boxfinishedPuzzles = sfp.data;
+                                return HiveListener(
+                                    box: _boxfinishedPuzzles,
+                                    builder: (box) {
+                                      return ListView(
+                                        children: <Widget>[
+                                          if (box.isEmpty)
+                                            Container(
+                                              margin: EdgeInsets.all(16.0),
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                "Henüz hiç sudoku çözmemişsiniz. Sağ üst köşedeki artı ikonundan yeni sudoku oluşturup hemen çözmeye başlayabilirsiniz",
+                                                style: GoogleFonts.cabin(
+                                                  textStyle: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Renk.dkrem,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                      for (FinishedPuzzle fp in box.values.toList().reversed.take(20))
-                                        Card(
-                                          child: ListTile(
-                                            leading: SizedBox(
-                                              width: 74,
-                                              child: Column(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  Row(
+                                          for (FinishedPuzzle fp in box.values.toList().reversed.take(20))
+                                            Card(
+                                              child: ListTile(
+                                                leading: SizedBox(
+                                                  width: 74,
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
                                                     children: <Widget>[
-                                                      Text("Puan: "),
+                                                      Row(
+                                                        children: <Widget>[
+                                                          Text("Puan: "),
+                                                          Text(
+                                                            "${fp.puan}",
+                                                            style: GoogleFonts.courgette(),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Text("Seviye"),
                                                       Text(
-                                                        "${fp.puan}",
+                                                        fp.level,
                                                         style: GoogleFonts.courgette(),
                                                       ),
                                                     ],
                                                   ),
-                                                  Text("Seviye"),
-                                                  Text(
-                                                    fp.level,
-                                                    style: GoogleFonts.courgette(),
-                                                  ),
-                                                ],
+                                                ),
+                                                title: Column(
+                                                  children: <Widget>[
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: <Widget>[
+                                                        SizedBox(
+                                                          width: 42,
+                                                          child: Text(
+                                                            "Tarih: ",
+                                                            style: TextStyle(fontSize: 14),
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          DateFormat("dd/MM/yyyy", 'tr-TR').format(fp.date),
+                                                          style: GoogleFonts.courgette(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: <Widget>[
+                                                        SizedBox(
+                                                          width: 42,
+                                                          child: Text(
+                                                            "Saat: ",
+                                                            style: TextStyle(fontSize: 14),
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          DateFormat("HH:mm:ss", 'tr-TR').format(fp.date),
+                                                          style: GoogleFonts.courgette(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: <Widget>[
+                                                        SizedBox(
+                                                          width: 42,
+                                                          child: Text(
+                                                            "Süre: ",
+                                                            style: TextStyle(fontSize: 14),
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          "${Duration(seconds: fp.time)}".split('.')[0],
+                                                          style: GoogleFonts.courgette(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                trailing: IconButton(
+                                                  onPressed: () {
+                                                    int izleme = ss.data.get('izleme', defaultValue: 3);
+                                                    if (izleme > 0)
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(builder: (_) {
+                                                          ss.data.put('izleme', izleme - 1);
+                                                          return SudokuReplay(fp: fp);
+                                                        }),
+                                                      );
+                                                    else
+                                                      _izlemeHakkiBul();
+                                                  },
+                                                  tooltip: "Tekrar İzle",
+                                                  icon: Icon(Icons.queue_play_next),
+                                                ),
                                               ),
                                             ),
-                                            title: Column(
-                                              children: <Widget>[
-                                                Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    SizedBox(
-                                                      width: 42,
-                                                      child: Text(
-                                                        "Tarih: ",
-                                                        style: TextStyle(fontSize: 14),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      DateFormat("dd/MM/yyyy", 'tr-TR').format(fp.date),
-                                                      style: GoogleFonts.courgette(),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    SizedBox(
-                                                      width: 42,
-                                                      child: Text(
-                                                        "Saat: ",
-                                                        style: TextStyle(fontSize: 14),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      DateFormat("HH:mm:ss", 'tr-TR').format(fp.date),
-                                                      style: GoogleFonts.courgette(),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                                  children: <Widget>[
-                                                    SizedBox(
-                                                      width: 42,
-                                                      child: Text(
-                                                        "Süre: ",
-                                                        style: TextStyle(fontSize: 14),
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "${Duration(seconds: fp.time)}".split('.')[0],
-                                                      style: GoogleFonts.courgette(),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            trailing: IconButton(
-                                              onPressed: () {
-                                                int izleme = ss.data.get('izleme', defaultValue: 3);
-                                                if (izleme > 0)
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(builder: (_) {
-                                                      ss.data.put('izleme', izleme - 1);
-                                                      return SudokuReplay(fp: fp);
-                                                    }),
-                                                  );
-                                                else
-                                                  _izlemeHakkiBul();
-                                              },
-                                              tooltip: "Tekrar İzle",
-                                              icon: Icon(Icons.queue_play_next),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  );
-                                });
-                          }
-                          return Center(child: CircularProgressIndicator());
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-                if (ss.data.length > 0)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        Text(
-                          "Tekrar İzleme Hakkı: ",
-                          style: GoogleFonts.concertOne(
-                            textStyle: TextStyle(
-                              color: Renk.beyaz,
-                              fontSize: 18.0,
-                            ),
+                                        ],
+                                      );
+                                    });
+                              }
+                              return Center(child: CircularProgressIndicator());
+                            },
                           ),
                         ),
-                        HiveListener(
-                          box: ss.data,
-                          keys: ['izleme'],
-                          builder: (box) {
-                            int izleme = box.get('izleme', defaultValue: 3);
-                            int ipucu = box.get('ipucu', defaultValue: 3);
-                            if (Fnks.uye.jetonlar['sudoku_izleme'] != izleme) {
-                              Fnks.uye.jetonlar['sudoku_izleme'] = izleme;
-                              Fnks.uye.jetonlar['sudoku_ipucu'] = ipucu;
-
-                              print(Fnks.uye.uid);
-
-                              Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
-
-                              Firestore.instance.collection('uyeler').document(Fnks.uye.uid)
-                                  //silme işlemi
-                                  /* .delete(); */
-
-                                  //guncelleme işlemi
-                                  .updateData({'jetonlar': Fnks.uye.jetonlar});
-                            }
-                            return InkWell(
-                              onTap: izleme > 0 ? null : _izlemeHakkiBul,
-                              child: Text(
-                                izleme > 0 ? "$izleme" : "Bul",
-                                style: GoogleFonts.concertOne(
-                                  textStyle: TextStyle(color: Renk.beyaz, fontSize: 24.0),
+                      ),
+                    ),
+                    if (ss.data.length > 0)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Text(
+                              "Tekrar İzleme Hakkı: ",
+                              style: GoogleFonts.concertOne(
+                                textStyle: TextStyle(
+                                  color: Renk.beyaz,
+                                  fontSize: 18.0,
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                            HiveListener(
+                              box: ss.data,
+                              keys: ['izleme'],
+                              builder: (box) {
+                                int izleme = box.get('izleme', defaultValue: 3);
+                                int ipucu = box.get('ipucu', defaultValue: 3);
+                                if (Fnks.uye.jetonlar['sudoku_izleme'] != izleme) {
+                                  Fnks.uye.jetonlar['sudoku_izleme'] = izleme;
+                                  Fnks.uye.jetonlar['sudoku_ipucu'] = ipucu;
+
+                                  print(Fnks.uye.uid);
+
+                                  Hive.box('ayarlar').put('uye', Fnks.uye.toMap());
+
+                                  Firestore.instance.collection('uyeler').document(Fnks.uye.uid)
+                                      //silme işlemi
+                                      /* .delete(); */
+
+                                      //guncelleme işlemi
+                                      .updateData({'jetonlar': Fnks.uye.jetonlar});
+                                }
+                                return InkWell(
+                                  onTap: izleme > 0 ? null : _izlemeHakkiBul,
+                                  child: Text(
+                                    izleme > 0 ? "$izleme" : "Bul",
+                                    style: GoogleFonts.concertOne(
+                                      textStyle: TextStyle(color: Renk.beyaz, fontSize: 24.0),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          );
-        } else
-          return Center(child: CircularProgressIndicator());
-      },
+                      ),
+                  ],
+                ),
+              );
+            } else
+              return Center(child: CircularProgressIndicator());
+          },
+        ),
+      ),
     );
   }
 }
