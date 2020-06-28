@@ -168,7 +168,6 @@ class _LoginState extends State<Login> {
               ),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 SizedBox(height: 40.0),
                 Center(child: Image.asset('assets/icon/sudoku.png')),
@@ -178,18 +177,13 @@ class _LoginState extends State<Login> {
                   child: Text(
                     "Sudoku Dershub",
                     style: GoogleFonts.courgette(
-                      textStyle: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Renk.dkrem,
-                      ),
+                      textStyle: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
-                Icon(Icons.account_circle, size: 100),
-                SizedBox(height: 20.0),
-                if (u['displayName'] != null) Center(child: Text(u['displayName'])),
-                if (u['displayName'] == null)
+                SizedBox(height: 40.0),
+                if (u['email'] != null) Center(child: Text(u['displayName'])),
+                if (u['email'] == null)
                   _islem
                       ? Center(child: CircularProgressIndicator(backgroundColor: Renk.yesil2))
                       : Column(

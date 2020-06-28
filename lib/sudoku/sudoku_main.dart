@@ -203,7 +203,10 @@ class _SudokuMainState extends State<SudokuMain> {
     _kutu.put('sudokuCols', _sudokuCols);
     _kutu.put('sudoku', _sudoku);
 
-    if (_sudokuHistory.length == 0 || jsonDecode(_sudokuHistory.last)['sudoku'] != _sudoku) {
+                                      /// Buradaki karşılaştırma işlemi daha önce List nesnesi üzeinden yapılınca her zaman true oluyordu.
+                                      /// Çünkü iki listedeki elemanların aynı olması iki listeyi eşit yapmıyor.
+                                      /// Bu yüzden ikisini de string olarak karşılaştırmak gerekti.
+    if (_sudokuHistory.length == 0 || jsonEncode(jsonDecode(_sudokuHistory.last)['sudoku']) != jsonEncode(_sudoku)) {
       Map historyItem = {
         'sudoku': _sudoku,
         'xy': _kutu.get('xy', defaultValue: "99"),
@@ -215,9 +218,6 @@ class _SudokuMainState extends State<SudokuMain> {
 
       _kutu.put('sudokuHistory', _sudokuHistory);
     }
-
-    print(jsonEncode(_sudoku));
-    print(jsonDecode(_sudokuHistory.first)['sudoku']);
 
     List pureList = _sudoku.map((e) => e.toString().replaceAll(RegExp(r'[s, ]'), '')).toList();
 

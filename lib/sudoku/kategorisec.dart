@@ -338,7 +338,6 @@ class _KategoriSecState extends State<KategoriSec> {
   @override
   void dispose() {
     _boxSudoku.compact();
-    if (Hive.isBoxOpen('sudoku')) _boxSudoku.close();
 
     _boxfinishedPuzzles.compact();
     if (Hive.isBoxOpen('finishedPuzzles')) _boxfinishedPuzzles.close();
@@ -360,7 +359,7 @@ class _KategoriSecState extends State<KategoriSec> {
                 margin: const EdgeInsets.all(4.0),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(Fnks.uye.photoUrl),
+                    image: NetworkImage(Fnks.uye.photoUrl ?? "https://image.flaticon.com/icons/png/512/16/16363.png"),
                     fit: BoxFit.cover,
                   ),
                   shape: BoxShape.circle,
@@ -386,47 +385,46 @@ class _KategoriSecState extends State<KategoriSec> {
                         return SizedBox();
                     },
                   ),
-                if (ss.data.length > 0)
-                  PopupMenuButton<String>(
-                    onSelected: (String seviye) {
-                      if (seviye == 'cikisYap')
-                        signOut();
-                      else if (ss.data.get('resume', defaultValue: false))
-                        _showResumeAlert(seviye);
-                      else {
-                        ss.data.put('resume', false);
-                        ss.data.put('level', seviye);
-                        _newPuzzle();
-                      }
-                    },
-                    tooltip: "Seviye Seçimi",
-                    icon: Icon(Icons.add),
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'Seviye Seçimi',
-                        enabled: false,
-                        child: Text(
-                          "Seviye Seçimi",
-                          style: TextStyle(
-                            color: Renk.siyah,
-                            fontWeight: FontWeight.bold,
-                          ),
+                PopupMenuButton<String>(
+                  onSelected: (String seviye) {
+                    if (seviye == 'cikisYap')
+                      signOut();
+                    else if (ss.data.get('resume', defaultValue: false))
+                      _showResumeAlert(seviye);
+                    else {
+                      ss.data.put('resume', false);
+                      ss.data.put('level', seviye);
+                      _newPuzzle();
+                    }
+                  },
+                  tooltip: "Seviye Seçimi",
+                  icon: Icon(Icons.add),
+                  itemBuilder: (BuildContext context) => [
+                    PopupMenuItem<String>(
+                      value: 'Seviye Seçimi',
+                      enabled: false,
+                      child: Text(
+                        "Seviye Seçimi",
+                        style: TextStyle(
+                          color: Renk.siyah,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      PopupMenuDivider(),
-                      for (String level in _levels)
-                        PopupMenuItem<String>(
-                          value: level,
-                          child: Text(level),
-                        ),
-                      PopupMenuDivider(),
+                    ),
+                    PopupMenuDivider(),
+                    for (String level in _levels)
                       PopupMenuItem<String>(
-                        value: 'cikisYap',
-                        textStyle: TextStyle(color: Renk.gKirmizi),
-                        child: Text("Çıkış Yap"),
+                        value: level,
+                        child: Text(level),
                       ),
-                    ],
-                  ),
+                    PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'cikisYap',
+                      textStyle: TextStyle(color: Renk.gKirmizi),
+                      child: Text("Çıkış Yap"),
+                    ),
+                  ],
+                ),
               ],
             ),
             backgroundColor: Renk.forumRenkleri[12],

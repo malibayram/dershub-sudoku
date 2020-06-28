@@ -109,14 +109,14 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: [Locale('en', 'US'), Locale('tr', 'TR')],
       home: Container(
-        color: Renk.gKirmizi.withOpacity(0.65),
+        color: Renk.dhMavi.withOpacity(0.85),
         child: SafeArea(
           child: HiveListener(
             box: Hive.box('ayarlar'),
             keys: ['uye'],
             builder: (box) {
               Map m = box.get('uye', defaultValue: {});
-              if (m['displayName'] == null)
+              if (m['email'] == null)
                 return FutureBuilder<FirebaseUser>(
                   future: FirebaseAuth.instance.currentUser(),
                   builder: (context, snapshot) {
