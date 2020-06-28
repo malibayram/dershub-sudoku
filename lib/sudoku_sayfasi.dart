@@ -429,6 +429,7 @@ class _SudokuSayfasiState extends State<SudokuSayfasi> {
                                         _sudokuKutu.put('ipucu', onceki['ipucu']);
 
                                         _sudokuKutu.put('sudokuHistory', _sudokuHistory);
+                                        _sudoku = onceki['sudokuRows']; // Sayılar geri alındıktan sonra farklı bir sayı girildiğinde silinen sayıların geri dönmemesi için
                                       }
 
                                       print(_sudokuHistory.length);
